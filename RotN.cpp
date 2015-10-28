@@ -1,38 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <sstream>
 #include <iostream>
 using namespace std;
 
-int convert_int(string t){
-	int len = t.size();
-	if ( (len >= 3 and t[0] != '-') or (t[0] == '-' and len>=4) ) {
-		printf("Try to simplified the number\n");
-		exit(0);
-	}
-	int res = 0;
-	int i = 0;
-	bool skip = false;
-	while (i<len){
-		if (t[i] == '-') {
-			skip = true;
-		}
-		else {
-			res += (int(t[i])-'0') * pow(10,len-i-1);
-		}
-		i++;
-	}
-	if (skip) return -res;
-	else return res;
+intmax_t StI(string t){
+	intmax_t temp;
+	istringstream(t) >> temp;
+	return temp;
 }
 
+const string help = "-h";
 
-int main(int argc, char *argv[]){
-	string help = "-h";
-	if (argv[1] == help){
+int main(int argc,char *argv[]){
+	if (argc == 1 or argv[1] == help){
 		printf("---- HELP PANEL ----\n");
 		printf("#1 : help : \"-h\"\n");
 		printf("#2 : format : rotN string cipher\n");
+		printf("#3 : alphabet rule:\n");
+		printf("abcdefghijklmnopqrstuvwxyz\n");
+		printf("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
+		printf("0123456789\n");
 		printf("--------------------\n");
 		exit(0);
 	}
@@ -40,27 +29,32 @@ int main(int argc, char *argv[]){
 		printf("Invalid format! May be you need \"-h\"\n");
 		exit(0);
 	}
-
-	string s = argv[1];
-	int cipher = convert_int(argv[2]) % 26;
-
-	//cout << s << " " << cipher << endl;
-
-	int len = s.size();
-	for (int i = 0; i < len; ++i)
-	{
-		if (s[i] >= 65 and s[i] <= 90){
-			if (s[i] + cipher > 90) s[i] = s[i] - 26 + cipher;
-			else if (s[i] + cipher < 65) s[i] = s[i] + 26 + cipher;
-			else s[i] = s[i] + cipher;
+	else {
+		int cipher = StI(argv[2]) % 26;
+		if (cipher <= 0) {
+			printf("Invalid format! May be you need \"-h\"\n");
+			exit(0);
 		}
-		else if (s[i] >= 97 and s[i] <= 122){
-			if (s[i] + cipher > 122) s[i] = s[i] - 26 + cipher;
-			else if (s[i] + cipher < 97) s[i] = s[i] + 26 + cipher;
-			else s[i] = s[i] + cipher;
+
+		string s = argv[1];
+		intmax_t len = s.size();
+
+		//printf("%s %d\n", s.c_str(), cipher);
+
+		for (intmax_t i = 0; i < len; ++i){
+			int temp = s[i];
+			if (temp >= 65 and temp <= 90){
+				temp = ( ( ( temp - 65 ) + cipher ) % 26 ) + 65 ;
+			}
+			else if (temp >= 97 and temp <= 122){
+				temp = ( ( ( temp - 97 ) + cipher ) % 26 ) + 97 ;
+			}
+			else if (temp >= 48 and temp <= 57){
+				temp = ( ( ( temp - 48 ) + cipher ) % 10 ) + 48 ;
+			}
+			printf ("%c",temp);
 		}
-		printf("%c",s[i]);
+		printf("\n");
+		exit(0);
 	}
-	printf ("\n");
-	exit(0);
 }
